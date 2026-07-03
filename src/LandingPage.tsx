@@ -6,7 +6,6 @@ import contentImg from "./assets/pillar-content.jpg";
 import umsatzImg from "./assets/pillar-umsatz.jpg";
 import { gsap, ScrollTrigger, DURATION, EASE, prefersReducedMotion } from "./gsap-config";
 import { useLenis } from "./useLenis";
-import Preloader from "./Preloader";
 
 const CALENDLY_URL = "#";
 
@@ -58,7 +57,7 @@ const STEPS = [
 function LogoLockup() {
   return (
     <span className="cv-logo">
-      calvinvisuals
+      CalvinVisuals
       <span className="cv-logo-bars" aria-hidden="true">
         <i /> <i /> <i />
       </span>
@@ -114,6 +113,7 @@ export default function LandingPage() {
         borderColor: STEP_BORDER_REST,
         boxShadow: STEP_GLOW_REST,
         scale: 1,
+        y: 0,
       });
 
       if (steps.length) {
@@ -149,13 +149,18 @@ export default function LandingPage() {
       onLeave: () => void;
     }> = [];
 
-    if (!prefersReducedMotion()) {
+    const canHover =
+      typeof window !== "undefined" &&
+      window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+    if (!prefersReducedMotion() && canHover) {
       stepEls.forEach((step) => {
         const onEnter = () => {
           gsap.to(step, {
             borderColor: STEP_BORDER_ACTIVE,
             boxShadow: STEP_GLOW_ACTIVE,
             scale: 1.03,
+            y: -4,
             duration: DURATION.fast,
             ease: "power2.out",
           });
@@ -166,6 +171,7 @@ export default function LandingPage() {
             borderColor: revealed ? STEP_BORDER_ACTIVE : STEP_BORDER_REST,
             boxShadow: revealed ? STEP_GLOW_ACTIVE : STEP_GLOW_REST,
             scale: revealed ? 1.03 : 1,
+            y: 0,
             duration: DURATION.fast,
             ease: "power2.out",
           });
@@ -188,8 +194,6 @@ export default function LandingPage() {
   return (
     <div className="cv-root" ref={rootRef}>
       <style>{css}</style>
-
-      <Preloader onComplete={() => ScrollTrigger.refresh()} />
 
       {/* ── Navigation ─────────────────────────────── */}
       <header className="cv-nav">
@@ -361,6 +365,11 @@ const css = `
   --shadow-lg: rgba(0,0,0,0.15) 0px 4px 20px 0px;
   --dur-fast: 0.3s;
   --ease: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --dur-lift-btn: 0.25s;
+  --dur-lift-card: 0.3s;
+  --dur-shine-btn: 0.7s;
+  --dur-shine-card: 1s;
 
   background: var(--void);
   color: var(--chalk);
@@ -371,19 +380,6 @@ const css = `
   position: relative;
 }
 .cv-root * { box-sizing: border-box; margin: 0; }
-
-/* ── Preloader ── */
-.cv-preloader {
-  position: fixed; inset: 0; z-index: 200;
-  background: var(--void);
-  display: flex; align-items: center; justify-content: center;
-}
-.cv-preloader-count {
-  font-family: var(--serif); font-weight: 500;
-  font-size: clamp(32px, 6vw, 56px);
-  letter-spacing: -0.03em; color: var(--chalk);
-  font-variant-numeric: tabular-nums;
-}
 
 /* ── Typografie ── */
 .cv-display {
@@ -424,19 +420,36 @@ const css = `
 
 /* ── Buttons ── */
 .cv-btn {
+  position: relative; overflow: hidden;
   display: inline-flex; align-items: center; gap: 8px;
   border-radius: 9999px; padding: 16px 24px;
   font-family: var(--sans); font-size: 15px; font-weight: 500;
   letter-spacing: -0.02em; text-decoration: none; white-space: nowrap;
-  transition: transform var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  will-change: transform;
+  transition: transform var(--dur-lift-btn) var(--ease-out), background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
 }
-.cv-btn:hover { transform: translateY(-1px); }
+.cv-btn::before {
+  content: "";
+  position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.28) 50%, transparent 60%);
+  transform: translateX(-150%);
+  transition: transform var(--dur-shine-btn) var(--ease-out);
+  pointer-events: none;
+}
 .cv-btn:focus-visible { outline: 2px solid var(--chalk); outline-offset: 3px; }
 .cv-btn--primary { background: var(--chalk); color: var(--void); box-shadow: var(--shadow-lg); }
+.cv-btn--primary::before { background: linear-gradient(115deg, transparent 40%, rgba(0,0,0,0.08) 50%, transparent 60%); }
 .cv-btn--primary:hover { background: var(--linen); }
 .cv-btn--ghost { background: transparent; color: var(--chalk); border: 1px solid rgba(255,255,255,0.5); }
 .cv-btn--ghost:hover { border-color: var(--chalk); }
 .cv-btn--dark { background: var(--void); color: var(--linen); box-shadow: var(--shadow-lg); }
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .cv-btn:hover { transform: translateY(-2px) scale(1.02); }
+  .cv-btn:hover::before { transform: translateX(150%); }
+}
+
+.cv-btn:active { transform: scale(0.98); }
 
 /* ── Logo ── */
 .cv-logo {
@@ -498,6 +511,16 @@ const css = `
   box-shadow: var(--shadow-xl);
   background-size: cover; background-position: center;
   overflow: hidden;
+  will-change: transform;
+  transition: transform var(--dur-lift-card) var(--ease-out);
+}
+.cv-card::before {
+  content: "";
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(115deg, transparent 25%, rgba(255,255,255,0.18) 50%, transparent 75%);
+  transform: translateX(-150%);
+  transition: transform var(--dur-shine-card) var(--ease-out);
+  pointer-events: none;
 }
 .cv-card--image {
   filter: saturate(0.55);
@@ -523,6 +546,7 @@ const css = `
   gap: 20px; margin-top: 48px;
 }
 .cv-step {
+  position: relative; overflow: hidden;
   display: flex; flex-direction: column; gap: 20px;
   padding: 32px 24px;
   border-radius: 22px;
@@ -532,6 +556,14 @@ const css = `
   border: 1px solid rgba(255,255,255,0.14);
   transform-origin: center center;
   will-change: transform, border-color, box-shadow;
+}
+.cv-step::before {
+  content: "";
+  position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(115deg, transparent 25%, rgba(255,255,255,0.18) 50%, transparent 75%);
+  transform: translateX(-150%);
+  transition: transform var(--dur-shine-card) var(--ease-out);
+  pointer-events: none;
 }
 .cv-step-nr {
   font-family: var(--serif); font-size: 32px; line-height: 1;
@@ -545,6 +577,13 @@ const css = `
     -webkit-backdrop-filter: blur(8px);
     background: rgba(255,255,255,0.06);
   }
+}
+
+/* ── Karten-Hover: Shine + Lift (nur echte Hover-Geräte, respektiert reduced-motion) ── */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .cv-card:hover { transform: translateY(-4px) scale(1.02); }
+  .cv-card:hover::before { transform: translateX(150%); }
+  .cv-step:hover::before { transform: translateX(150%); }
 }
 
 /* ── Founder ── */
