@@ -68,6 +68,17 @@ Gemessen: Beliebige `currentTime`-Sprünge lösen jetzt in 1-3ms auf (`seeked`-E
 
 Verifiziert per Vorher/Nachher-Frame-Vergleich (Crop + 3x Vergrösserung der schwarzen Bildecke): sichtbares Blockmuster verschwunden. Seek-Geschwindigkeit bleibt bei ~4ms pro Sprung (Smoothness nicht beeinträchtigt).
 
+## Fix nach Nutzer-Feedback ("immer noch sehr schlecht, Schwarz ist das Problem") — Keying statt Kompression
+
+Nutzer-Idee: das Glasbüro wie bei einem PNG "ausschneiden" und über eine echte schwarze Fläche legen, statt sich auf die Video-Kompression im Schwarzbereich zu verlassen. Umgesetzt:
+
+| Datum | Datei/Schritt | Änderung | Warum |
+|---|---|---|---|
+| 2026-07-06 | Pixel-Messung (Sharp) | Helligkeit gemessen: Void-Ecken ~4-7 (von 255), dunkelste echte Möbel (Boden) ~20+ | Sichere Schwelle für "Keying" (Helligkeits-Ausschneiden) gefunden, ohne das eigentliche Motiv anzuschneiden |
+| 2026-07-06 | `src/ScrollVideoScrubber.tsx` | Video wird nicht mehr direkt angezeigt, sondern unsichtbar (`display:none`) im Hintergrund dekodiert. Ein `<canvas>` zeichnet pro Scroll-Frame das aktuelle Video-Bild, setzt aber alle Pixel unter Helligkeit 10 auf Alpha=0 (transparent, mit weichem Übergang bis 22) — die Seite selbst (reines CSS-Schwarz, `background: var(--void)`) scheint durch. So gibt es im Schwarzbereich gar keine Video-Kompression mehr, die Banding verursachen könnte. | Direkte Umsetzung der Nutzer-Idee: Motiv "ausschneiden", Hintergrund als natives Schwarz |
+
+Verifiziert: Pixel in der Bildecke zeigt `rgba(0,0,0,0)` (vollständig transparent → echtes CSS-Schwarz sichtbar), Pixel in der Bildmitte zeigt normale Bildwerte mit Alpha=255 (Motiv sichtbar). Performance gemessen: ~13-19ms pro Keying-Durchlauf bei auf 1280px gedeckelter Canvas-Auflösung — für ein Hintergrund-Element unkritisch.
+
 ## Verify-Checkliste (durchgeführt)
 
 - [x] Scroll-Progress mappt korrekt auf Video-Zeit über die volle Seitenlänge — geprüft bei 0%, 25%, 100% Scroll-Position (monoton, konsistent)
