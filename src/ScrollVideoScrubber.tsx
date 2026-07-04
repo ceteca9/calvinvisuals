@@ -39,6 +39,19 @@ export default function ScrollVideoScrubber({ poster }: { poster: string }) {
       },
     });
 
+    // Web-Fonts und Bilder verändern die Dokumenthöhe oft erst NACH dem
+    // ersten Layout — ScrollTrigger cacht Start/Ende beim Erstellen, also
+    // muss nach dem tatsächlichen Settle neu gemessen werden, sonst stimmt
+    // die Scroll-Zuordnung nicht mehr (fühlt sich an wie "Scroll tut nichts").
+    const refresh = () => ScrollTrigger.refresh();
+    document.fonts?.ready.then(refresh).catch(() => {});
+    if (document.readyState === "complete") {
+      refresh();
+    } else {
+      window.addEventListener("load", refresh);
+    }
+    const refreshTimeout = window.setTimeout(refresh, 1000);
+
     const tick = () => {
       currentProgress += (targetProgress - currentProgress) * 0.08;
       const duration = video.duration;
@@ -55,6 +68,8 @@ export default function ScrollVideoScrubber({ poster }: { poster: string }) {
     return () => {
       gsap.ticker.remove(tick);
       st.kill();
+      window.removeEventListener("load", refresh);
+      window.clearTimeout(refreshTimeout);
     };
   }, []);
 

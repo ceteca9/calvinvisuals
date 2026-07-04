@@ -43,10 +43,20 @@ bevor der Scroll-Scrub-Code integriert wird.
 | 2026-07-06 | `src/ScrollVideoScrubber.tsx` (neu) | Fixed Video-Layer (`position:fixed; inset:0; z-index:-1`), Scroll-Progress via GSAP ScrollTrigger (`document.documentElement`, top top → bottom bottom) auf Video-Zeit gemappt, geglättet mit Lerp über `gsap.ticker`. Flaches dunkles Overlay (`rgba(0,0,0,0.6)`, gleicher Kontrast wie vorher). Fallback auf statisches Bild bei `prefers-reduced-motion` oder Viewport < 768px. Video-Decoder wird per play()+pause() "aufgeweckt". | Kernstück des Features |
 | 2026-07-06 | `src/LandingPage.tsx` | `SCROLL_SCRUB_ENABLED`-Flag ergänzt; `<ScrollVideoScrubber>` als erstes Kind in `.cv-root` gemountet; altes `cv-hero-img`/`cv-hero-scrim` bleibt im Code, wird nur bei aktivem Flag nicht gerendert; CSS für `.cv-scrollbg` ergänzt, `.cv-root` bekommt `z-index:0` für sauberen Stacking-Context. | Bestehende Sektionen/Copy/CTA unverändert |
 
+## Fix nach Nutzer-Feedback ("Scroll funktioniert nicht" + "Qualität verpixelt")
+
+| Datum | Datei/Schritt | Änderung | Warum |
+|---|---|---|---|
+| 2026-07-06 | `src/assets/cube-rotation.mp4` | Neu encodiert aus dem Rohmaterial: 1920px Breite statt 1280px, CRF 19 statt 25 (1.66MB → 6.6MB) | Bei voller Bildschirmbreite wurde die 1280px-Version sichtbar hochskaliert und wirkte verpixelt |
+| 2026-07-06 | `src/ScrollVideoScrubber.tsx` | `ScrollTrigger.refresh()` wird jetzt nach `document.fonts.ready`, `window.load` und zusätzlich nach 1s per Timeout erzwungen | Web-Fonts/Bilder können die Dokumenthöhe nach dem ersten Layout noch verändern; ScrollTrigger cacht Start/Ende beim Erstellen und muss nachträglich neu messen, sonst stimmt die Scroll-zu-Video-Zuordnung nicht mehr |
+
+Nach dem Fix erneut verifiziert: `ScrollTrigger.getAll()` zeigt für den Video-Layer `start:0, end:2805` (= Dokumenthöhe − Viewport), `progress` folgt korrekt und monoton der Scroll-Position (0% → 0.0s, 25% → 3.3s, 100% → 10.0s), inkl. Rückwärts-Scrubben.
+
 ## Verify-Checkliste (durchgeführt)
 
-- [x] Scroll-Progress mappt korrekt auf Video-Zeit über die volle Seitenlänge — geprüft bei 0%, 50%, 100% Scroll-Position
+- [x] Scroll-Progress mappt korrekt auf Video-Zeit über die volle Seitenlänge — geprüft bei 0%, 25%, 100% Scroll-Position (monoton, konsistent)
 - [x] Rückwärts-Scrubben beim Hochscrollen funktioniert (10s → 0s bestätigt)
+- [x] Videoqualität deutlich verbessert (1920px/CRF19 statt 1280px/CRF25)
 - [x] Alle Sektionen, Texte und der Calendly-CTA sind identisch zum Stand vor dem Feature (Accessibility-Snapshot verglichen)
 - [x] Text bleibt lesbar (Screenshot bei 50% Scroll geprüft — Ablauf-Karten und Founder-Sektion über dem Video gut lesbar)
 - [x] Mobile-Fallback (< 768px) und `prefers-reduced-motion` zeigen das statische Bild statt Video (Code-Pfad wie in `ScrollVideoScrubber.tsx`)
