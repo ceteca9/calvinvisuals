@@ -33,3 +33,4 @@ bevor der Scroll-Scrub-Code integriert wird.
 | 2026-07-06 | (git) | Branch `feature/cube-rotation`, Tag `pre-cube-rotation` auf letzten `main`-Commit | Rollback-Anker |
 | 2026-07-06 | Magnific Upload | Referenzbild `neuer hintergrund.png` hochgeladen | Creation `KjC0ZYtkqp` |
 | 2026-07-06 | `simulate_cost` | Kling 3.0, 10s, 1080p, 16:9 → 900 Credits (simuliert) | Kostenschätzung vor Generierung, Nutzer hat bestätigt |
+| 2026-07-06 | `video_generate` | Clip: fixe Kran-Kamera, Büro dreht sich 360° selbst, Start=End-Keyframe (Loop) | Creation `kLETAEE16B`, 900 Credits, Status: fertig — wartet auf Nutzer-OK vor Integration |
