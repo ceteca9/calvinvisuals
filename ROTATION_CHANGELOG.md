@@ -60,6 +60,14 @@ Nach dem Fix erneut verifiziert: `ScrollTrigger.getAll()` zeigt für den Video-L
 
 Gemessen: Beliebige `currentTime`-Sprünge lösen jetzt in 1-3ms auf (`seeked`-Event), vorher potenziell deutlich langsamer bei Sprüngen weit vom nächsten Keyframe entfernt. Zusätzlich mit einer Serie schneller, unregelmässiger Scroll-Sprünge (60ms Abstand) getestet — Video folgt sauber und bleibt nie hängen.
 
+## Fix nach Nutzer-Feedback ("Qualität immer noch schlecht, vor allem Schwarz verpixelt")
+
+| Datum | Datei/Schritt | Änderung | Warum |
+|---|---|---|---|
+| 2026-07-06 | `src/assets/cube-rotation.mp4` | Neu encodiert: CRF 21 → 14, zusätzlich `aq-mode=2:aq-strength=0.8` (adaptive Quantisierung), weiterhin `-g 1 -bf 0`. 14.8MB → 27MB. | CRF 21 kombiniert mit "jedes Frame ein Keyframe" führte zu sichtbaren Block-Artefakten (Banding) in den flachen schwarzen Flächen — per Frame-Crop-Vergleich (3x vergrössert) bestätigt und danach behoben. Rohmaterial von Kling selbst war sauber, das Banding kam vom eigenen Re-Encoding. |
+
+Verifiziert per Vorher/Nachher-Frame-Vergleich (Crop + 3x Vergrösserung der schwarzen Bildecke): sichtbares Blockmuster verschwunden. Seek-Geschwindigkeit bleibt bei ~4ms pro Sprung (Smoothness nicht beeinträchtigt).
+
 ## Verify-Checkliste (durchgeführt)
 
 - [x] Scroll-Progress mappt korrekt auf Video-Zeit über die volle Seitenlänge — geprüft bei 0%, 25%, 100% Scroll-Position (monoton, konsistent)
