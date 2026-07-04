@@ -38,4 +38,5 @@ bevor der Scroll-Scrub-Code integriert wird.
 | 2026-07-06 | Magnific Upload | Referenzbild `neuer hintergrund.png` hochgeladen | Creation `KjC0ZYtkqp` |
 | 2026-07-06 | `simulate_cost` | Kling 3.0, 10s, 1080p, 16:9 → 900 Credits (simuliert) | Kostenschätzung vor Generierung, Nutzer hat bestätigt |
 | 2026-07-06 | `video_generate` | Versuch 1: fixe Kran-Kamera, Büro dreht sich 360° selbst, Start=End-Keyframe (Loop) | Creation `kLETAEE16B`, 900 Credits — Nutzer-Feedback: pendelt statt sauber zu drehen |
-| 2026-07-06 | `video_generate` | Versuch 2: vereinfacht auf 180° Drehung nach links, eine Richtung, kein End-Keyframe | Creation `jSHpdzpLD0`, 900 Credits, Status: fertig — wartet auf Nutzer-OK vor Integration |
+| 2026-07-06 | `video_generate` | Versuch 2: vereinfacht auf 180° Drehung nach links, eine Richtung, kein End-Keyframe | Creation `jSHpdzpLD0`, 900 Credits — **vom Nutzer freigegeben** |
+| 2026-07-06 | `src/assets/cube-rotation.mp4` | Freigegebenes Video heruntergeladen, mit ffmpeg auf 1280px Breite skaliert, Audio entfernt, H.264 CRF 25 (`-movflags +faststart`). 17.8MB → 1.66MB. | Web-Performance |
