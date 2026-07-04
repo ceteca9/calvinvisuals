@@ -210,9 +210,9 @@ export default function LandingPage() {
         <div className="cv-hero-content">
           <span className="cv-eyebrow">CalvinVisuals</span>
           <h1 className="cv-display">
-            Du kümmerst dich ums Geschäft.
+            Du kümmerst dich um dein Geschäft.
             <br />
-            Wir ums Wachstum.
+            Wir um deinen Wachstum.
           </h1>
           <p className="cv-hero-sub">Massgeschneidert für mehr Umsatz.</p>
           <div className="cv-hero-actions">
