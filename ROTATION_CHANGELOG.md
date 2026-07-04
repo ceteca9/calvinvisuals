@@ -40,3 +40,14 @@ bevor der Scroll-Scrub-Code integriert wird.
 | 2026-07-06 | `video_generate` | Versuch 1: fixe Kran-Kamera, Büro dreht sich 360° selbst, Start=End-Keyframe (Loop) | Creation `kLETAEE16B`, 900 Credits — Nutzer-Feedback: pendelt statt sauber zu drehen |
 | 2026-07-06 | `video_generate` | Versuch 2: vereinfacht auf 180° Drehung nach links, eine Richtung, kein End-Keyframe | Creation `jSHpdzpLD0`, 900 Credits — **vom Nutzer freigegeben** |
 | 2026-07-06 | `src/assets/cube-rotation.mp4` | Freigegebenes Video heruntergeladen, mit ffmpeg auf 1280px Breite skaliert, Audio entfernt, H.264 CRF 25 (`-movflags +faststart`). 17.8MB → 1.66MB. | Web-Performance |
+| 2026-07-06 | `src/ScrollVideoScrubber.tsx` (neu) | Fixed Video-Layer (`position:fixed; inset:0; z-index:-1`), Scroll-Progress via GSAP ScrollTrigger (`document.documentElement`, top top → bottom bottom) auf Video-Zeit gemappt, geglättet mit Lerp über `gsap.ticker`. Flaches dunkles Overlay (`rgba(0,0,0,0.6)`, gleicher Kontrast wie vorher). Fallback auf statisches Bild bei `prefers-reduced-motion` oder Viewport < 768px. Video-Decoder wird per play()+pause() "aufgeweckt". | Kernstück des Features |
+| 2026-07-06 | `src/LandingPage.tsx` | `SCROLL_SCRUB_ENABLED`-Flag ergänzt; `<ScrollVideoScrubber>` als erstes Kind in `.cv-root` gemountet; altes `cv-hero-img`/`cv-hero-scrim` bleibt im Code, wird nur bei aktivem Flag nicht gerendert; CSS für `.cv-scrollbg` ergänzt, `.cv-root` bekommt `z-index:0` für sauberen Stacking-Context. | Bestehende Sektionen/Copy/CTA unverändert |
+
+## Verify-Checkliste (durchgeführt)
+
+- [x] Scroll-Progress mappt korrekt auf Video-Zeit über die volle Seitenlänge — geprüft bei 0%, 50%, 100% Scroll-Position
+- [x] Rückwärts-Scrubben beim Hochscrollen funktioniert (10s → 0s bestätigt)
+- [x] Alle Sektionen, Texte und der Calendly-CTA sind identisch zum Stand vor dem Feature (Accessibility-Snapshot verglichen)
+- [x] Text bleibt lesbar (Screenshot bei 50% Scroll geprüft — Ablauf-Karten und Founder-Sektion über dem Video gut lesbar)
+- [x] Mobile-Fallback (< 768px) und `prefers-reduced-motion` zeigen das statische Bild statt Video (Code-Pfad wie in `ScrollVideoScrubber.tsx`)
+- [ ] 60fps-Messung unter echter Scroll-Last — in dieser Umgebung nicht messbar, bitte im echten Browser gegenprüfen

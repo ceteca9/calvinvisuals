@@ -6,8 +6,14 @@ import contentImg from "./assets/pillar-content.jpg";
 import umsatzImg from "./assets/pillar-umsatz.jpg";
 import { gsap, ScrollTrigger, DURATION, EASE, prefersReducedMotion } from "./gsap-config";
 import { useLenis } from "./useLenis";
+import ScrollVideoScrubber from "./ScrollVideoScrubber";
 
 const CALENDLY_URL = "#";
+
+// Feature flag for the cube-rotation scroll-scrub video background.
+// Flip to false to instantly roll back to the old static hero photo —
+// the original markup below stays intact either way.
+const SCROLL_SCRUB_ENABLED = true;
 
 const STEP_BORDER_REST = "rgba(255,255,255,0.14)";
 const STEP_BORDER_ACTIVE = "rgba(255,255,255,0.55)";
@@ -195,6 +201,8 @@ export default function LandingPage() {
     <div className="cv-root" ref={rootRef}>
       <style>{css}</style>
 
+      {SCROLL_SCRUB_ENABLED && <ScrollVideoScrubber poster={heroImg} />}
+
       {/* ── Navigation ─────────────────────────────── */}
       <header className="cv-nav">
         <LogoLockup />
@@ -205,8 +213,12 @@ export default function LandingPage() {
 
       {/* ── Hero ───────────────────────────────────── */}
       <section className="cv-hero" ref={heroRef}>
-        <img className="cv-hero-img" src={heroImg} alt="" />
-        <div className="cv-hero-scrim" />
+        {!SCROLL_SCRUB_ENABLED && (
+          <>
+            <img className="cv-hero-img" src={heroImg} alt="" />
+            <div className="cv-hero-scrim" />
+          </>
+        )}
         <div className="cv-hero-content">
           <span className="cv-eyebrow">CalvinVisuals</span>
           <h1 className="cv-display">
@@ -378,8 +390,23 @@ const css = `
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   position: relative;
+  z-index: 0;
 }
 .cv-root * { box-sizing: border-box; margin: 0; }
+
+/* ── Scroll-Scrub Video-Hintergrund ── */
+.cv-scrollbg {
+  position: fixed; inset: 0; z-index: -1;
+  overflow: hidden;
+}
+.cv-scrollbg-media {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; filter: saturate(0.55);
+}
+.cv-scrollbg-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.6);
+}
 
 /* ── Typografie ── */
 .cv-display {
