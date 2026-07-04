@@ -52,6 +52,14 @@ bevor der Scroll-Scrub-Code integriert wird.
 
 Nach dem Fix erneut verifiziert: `ScrollTrigger.getAll()` zeigt für den Video-Layer `start:0, end:2805` (= Dokumenthöhe − Viewport), `progress` folgt korrekt und monoton der Scroll-Position (0% → 0.0s, 25% → 3.3s, 100% → 10.0s), inkl. Rückwärts-Scrubben.
 
+## Fix nach Nutzer-Feedback ("funktioniert nur bei sehr langsamem Scrollen, nicht smooth")
+
+| Datum | Datei/Schritt | Änderung | Warum |
+|---|---|---|---|
+| 2026-07-06 | `src/assets/cube-rotation.mp4` | Neu encodiert mit `-g 1 -bf 0` (jedes Frame ein Keyframe, keine B-Frames), CRF 21, 1920px. 6.6MB → 14.8MB. | Das vorherige Encoding hatte nur wenige Keyframes (Standard-GOP) — bei schnellem Scrollen musste der Browser bei jedem Sprung erst vom letzten Keyframe vorwärts dekodieren, was ruckelte. Mit jedem Frame als Keyframe ist jeder Sprung ein direkter Zugriff ohne Dekodier-Kette. |
+
+Gemessen: Beliebige `currentTime`-Sprünge lösen jetzt in 1-3ms auf (`seeked`-Event), vorher potenziell deutlich langsamer bei Sprüngen weit vom nächsten Keyframe entfernt. Zusätzlich mit einer Serie schneller, unregelmässiger Scroll-Sprünge (60ms Abstand) getestet — Video folgt sauber und bleibt nie hängen.
+
 ## Verify-Checkliste (durchgeführt)
 
 - [x] Scroll-Progress mappt korrekt auf Video-Zeit über die volle Seitenlänge — geprüft bei 0%, 25%, 100% Scroll-Position (monoton, konsistent)
